@@ -11,3 +11,6 @@ UPDATE_TOKEN = "/api/auth/token"
 
 CREATE_ORDER = "/api/orders"
 GET_ORDER = "/api/orders"
+GET_ALL_ORDERS = "/api/orders/all"
+
+GET_INGREDIENTS = "/api/ingredients"

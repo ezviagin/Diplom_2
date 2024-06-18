@@ -2,7 +2,6 @@ import allure
 from dataclasses import dataclass
 import requests
 
-
 from helpers.faker import *
 from helpers.urls import *
 
@@ -14,6 +13,7 @@ class Credentials:
     name: str = ''
 
 
+# noinspection PyTypeChecker
 class User:
     def __init__(self):
         self.user_credentials: Credentials = None
@@ -65,22 +65,23 @@ class User:
             }
 
         response = requests.post(f"{BASE_URL}{LOGIN_USER}", json=payload)
-        if response.status_code == 200 and 'accessToken' in response.json() and 'refreshToken' in response.json():
+        if response.status_code == 200:
             self.access_token = response.json()['accessToken']
             self.refresh_token = response.json()['refreshToken']
 
         return response
 
-    @allure.step('Изменение данных пользователя: PATCH /api/auth/user')
-    def change_user(self, access_token: str = '', email: str = None, password: str = None, name: str = None):
-        token = access_token if access_token else self.access_token
+    def logout_user(self):
+        payload = {
+            "token": self.refresh_token
+        }
+        return requests.post(f"{BASE_URL}{LOGOUT_USER}", json=payload)
 
-        if email is None:
-            email = self.get_email()
-        if password is None:
-            password = self.get_password()
-        if name is None:
-            name = self.get_name()
+    @allure.step('Изменение данных пользователя: PATCH /api/auth/user')
+    def change_user(self, email: str = None, password: str = None, name: str = None):
+        email = email or self.get_email()
+        password = password or self.get_password()
+        name = name or self.get_name()
 
         payload = {
             "email": email,
@@ -88,7 +89,8 @@ class User:
             "name": name,
         }
 
-        response = requests.patch(f"{BASE_URL}{CHANGE_USER}", headers={"Authorization": token}, json=payload)
+        response = requests.patch(f"{BASE_URL}{CHANGE_USER}",
+                                  headers={"Authorization": self.access_token}, json=payload)
         if response.status_code == 200:
             self.user_credentials.email = email
             self.user_credentials.password = password
@@ -105,10 +107,32 @@ class User:
         return response
 
     @allure.step('Создание заказа: POST /api/orders')
-    def create_order(self, body):
-        return requests.post(f"{BASE_URL}{CREATE_ORDER}", json=body)
+    def create_order(self, order: dict):
+        return requests.post(f"{BASE_URL}{CREATE_ORDER}", json=order)
 
     @allure.step('Получение заказов конкретного пользователя: GET /api/orders')
     def get_user_orders(self, access_token: str = None):
         token = access_token if access_token else self.access_token
-        return requests.get(f"{BASE_URL}{GET_ORDER}", headers ={"Authorization": token})
+        return requests.get(f"{BASE_URL}{GET_ORDER}", headers={"Authorization": token})
+
+    @staticmethod
+    def get_all_orders():
+        return requests.get(f"{BASE_URL}{GET_ALL_ORDERS}")
+
+    @staticmethod
+    def get_ingredients():
+        return requests.get(f"{BASE_URL}{GET_INGREDIENTS}")
+
+    @staticmethod
+    def assemble_random_ingredients() -> dict:
+        response = User().get_ingredients()
+        if not response.ok:
+            return {}
+
+        data = response.json()
+        if data.get('success') is not True:
+            return {}
+
+        id_list = [item['_id'] for item in data["data"]]
+
+        return {"ingredients": random.sample(id_list, 3)}

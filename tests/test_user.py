@@ -1,6 +1,6 @@
 import pytest
 
-from api.user import User
+from api.stellar_burger_api import User
 from helpers.faker import *
 
 
@@ -69,7 +69,7 @@ class TestChangeUser:
         user.login_user()
         response = user.change_user(email=new_email, password=new_password, name=new_name)
         assert response.status_code == 200
-        assert response.json()["success"] is True
+        assert response.json()['success'] is True
 
     @pytest.mark.parametrize('new_email, new_password, new_name', [
         (generate_email(), None, None),
@@ -81,13 +81,18 @@ class TestChangeUser:
         user.create_user()
         response = user.change_user(email=new_email, password=new_password, name=new_name)
         assert response.status_code == 401
-        assert response.json()["success"] is False
+        assert response.json()['success'] is False
+        assert response.json()['message'] == 'You should be authorised'
 
     def test_change_already_used_email_failure(self):
         user = User()
         user.create_user()
         user.login_user()
-        response = user.change_user(email=user.get_email())
-        response = user.change_user(email=user.get_email())
+
+        user2 = User()
+        user2.create_user()
+
+        response = user.change_user(email=user2.get_email())
         assert response.status_code == 403
-        assert response.json()["success"] is False
+        assert response.json()['success'] is False
+        assert response.json()['message'] == 'User with such email already exists'
