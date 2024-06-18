@@ -1,11 +1,20 @@
 import pytest
 
-from api.order import *
 from api.stellar_burger_api import User
 
 
 @pytest.fixture(scope='class')
-def created_user():
+def authorized_user():
+    user = User()
+    user.create_user()
+    user.login_user()
+    yield user
+    user.logout_user()
+    user.delete_user()
+
+
+@pytest.fixture(scope='class')
+def non_authorized_user():
     user = User()
     user.create_user()
     yield user
@@ -13,9 +22,9 @@ def created_user():
 
 
 @pytest.fixture(scope='function')
-def delete_user():
+def user_to_delete():
     user: User = None
     yield user
     if user:
-        user.login_user()
+        user.logout_user()
         user.delete_user()

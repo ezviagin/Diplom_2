@@ -13,7 +13,6 @@ class Credentials:
     name: str = ''
 
 
-# noinspection PyTypeChecker
 class User:
     def __init__(self):
         self.user_credentials: Credentials = None
@@ -72,10 +71,7 @@ class User:
         return response
 
     def logout_user(self):
-        payload = {
-            "token": self.refresh_token
-        }
-        return requests.post(f"{BASE_URL}{LOGOUT_USER}", json=payload)
+        return requests.post(f"{BASE_URL}{LOGOUT_USER}", json={"token": self.refresh_token})
 
     @allure.step('Изменение данных пользователя: PATCH /api/auth/user')
     def change_user(self, email: str = None, password: str = None, name: str = None):
