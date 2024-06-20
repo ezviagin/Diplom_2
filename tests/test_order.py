@@ -13,6 +13,8 @@ class TestCreateOrder:
         assert response.status_code == 200
         assert response.json()['success'] is True
 
+    # Тест всегда завершается с кодом 200, согласно документации должен быть 400.
+    # Наставник рекомендовал оставить комментарий в коде.
     @allure.description('Создание заказа без авторизации')
     def test_create_order_with_no_auth_failure(self, non_authorized_user):
         response = non_authorized_user.create_order(User().assemble_random_ingredients())
@@ -27,9 +29,9 @@ class TestCreateOrder:
         assert response.json()['message'] == 'Ingredient ids must be provided'
 
     @allure.description('Создание заказа с неверным хешем ингредиентов')
-    @pytest.mark.parametrize('bad_hash', ['61deaddeaddead1d', 'xxxxxxxxxx', 'dead', '0'])
+    @pytest.mark.parametrize('bad_hash', ['60d3b41abdacab0026a733', 'xxxxxxxxxx', 'dead', '0'])
     def test_create_order_with_bad_ingredient_failure(self, authorized_user, bad_hash):
-        order_bad_hash = {"ingrediends": bad_hash}
+        order_bad_hash = {"ingredients": bad_hash}
         response = authorized_user.create_order(order_bad_hash)
         assert response.status_code == 500
 
