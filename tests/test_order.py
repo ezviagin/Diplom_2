@@ -53,15 +53,6 @@ class TestGetOrder:
         assert response.json()["success"] is False
         assert response.json()["message"] == 'You should be authorised'
 
-    def test_get_max_num_of_orders_success(self, authorized_user):
-        for _ in (1, 10):
-            authorized_user.create_order(User().assemble_random_ingredients())
-
-        response = authorized_user.get_user_orders()
-        # TODO
-        order_list_len = len(response.json()['orders'])
-        assert 50
-
     def test_get_max_num_of_all_orders(self):
         response = User().get_all_orders()
         order_list_len = len(response.json()['orders'])
