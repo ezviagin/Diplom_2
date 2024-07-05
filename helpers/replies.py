@@ -1,0 +1,6 @@
+INGREDIENT_ID_MUST_BE_PROVIDED = 'Ingredient ids must be provided'
+AUTH_REQUIRED = 'You should be authorised'
+USER_WITH_EMAIL_ALREADY_EXISTS = 'User with such email already exists'
+EMAIL_OR_PASSWORD_INCORRECT = 'email or password are incorrect'
+EMAIL_PASSWORD_NAME_REQUIRED = 'Email, password and name are required fields'
+USER_ALREADY_EXISTS = 'User already exists'
